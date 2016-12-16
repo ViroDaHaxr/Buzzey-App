@@ -3,14 +3,24 @@
 
 
 {% block content %}
-  <h1>Buzzey Dashboard Page</h1>
 
-  {% if session['username'] %} <h2>
-      Hello, {{ session['username']}}!  </h2>
+<div class = "sub-title" >
+  <h1>Dashboard Page</h1></div>
+
+  {% if session['username'] %} <h3>
+      Hello, {{ session['username']}}!  </h3>
       {% endif %}
 <p>
   {% if session['twitter'] %}
       <h3> You are logged in to twitter account as {{session['twitter']}} </h3>
+
+      <h3>  KPI's for Twitter Account:  </h3>
+
+      Number of followers:  {{followers}}
+
+
+
+
 
   {% else %}
     <p>

@@ -61,6 +61,15 @@ input[type=submit] {
     margin-bottom: 30px;
     text-decoration: none;
 }
+.sub-title {
+    display: block;
+    color: #222;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px;
+    text-decoration: none;
+}
 
 .post + .post {
     margin-top: 15px;
