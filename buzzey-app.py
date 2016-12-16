@@ -28,10 +28,10 @@ session = DBSession()
 @app.route('/')
 @app.route('/main')
 def main():
-    if 'twitter' in login_session:
+    if 'username' in login_session:
         return redirect(url_for('dashboard'))
     else:
-        return redirect(url_for('start'))
+        return render_template('publicindex.html')
 
 @app.route('/dashboard/')
 def dashboard():
@@ -39,15 +39,15 @@ def dashboard():
         return redirect(url_for('main'))
 
     # Call api.twitter.com/1.1/users/show.json?user_id={user_id}
-    user = session.query(User).filter_by(user_name=login_session['username']).one()
-    if not user:
-        return "error: username not found"
+    try:
+        user = session.query(User).filter_by(user_name=login_session['username']).one()
+    except:
+        return redirect(url_for('/main'))
     consumer = oauth.Consumer(app.config['APP_CONSUMER_KEY'], app.config['APP_CONSUMER_SECRET'])
     rot,rotc = user.oauth_token,user.token_secret
     real_token = oauth.Token(rot,rotc)
     real_client = oauth.Client(consumer, real_token)
 
-    print(show_user_url + '?user_id=' + login_session['username'])
     real_resp, real_content = real_client.request(show_user_url + '?user_id=' + login_session['twitid'], "GET")
     if real_resp['status'] != '200':
         error_message = "Invalid response from Twitter API GET users/show : %s" % real_resp['status']
@@ -55,12 +55,13 @@ def dashboard():
     response = json.loads(real_content)
     print('recieved response')
 
-
     friends_count = response['friends_count']
     statuses_count = response['statuses_count']
     followers_count = response['followers_count']
 
-    return render_template('dashboard.html',followers=followers_count, statuses=statuses_count, friends=friends_count)
+
+    return render_template('dashboard.html',followers=followers_count, statuses=statuses_count,
+                            friends=friends_count, user=user)
 
 
 @app.route('/search')

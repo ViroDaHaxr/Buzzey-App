@@ -7,18 +7,20 @@
 <div class = "sub-title" >
   <h1>Dashboard Page</h1></div>
 
-  {% if session['username'] %} <h3>
-      Hello, {{ session['username']}}!  </h3>
-      {% endif %}
+
 <p>
   {% if session['username'] %}
-      <h3> You are logged in to twitter account as {{session['username']}} </h3>
+      <h3> You are logged in to twitter as {{session['username']}} </h3>
+       Signup date = {{user.created.strftime("%b %d, %Y")}}<br>
+       Membership level = {{user.member_level}}
+
 
       <h3>  KPI's for Twitter Account:  </h3>
 
       Followers count =  {{followers}}  <br>
       Friends count =  {{friends}} <br>
-      Status updates = {{statuses}}
+      Status updates = {{statuses}} <br>
+
 
 
 
