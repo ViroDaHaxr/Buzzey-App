@@ -164,8 +164,6 @@ def callback():
         return render_template('error.html', error_message=error_message)
 
     response = json.loads(real_content)
-
-
     name = response['name']
     login_session['username'] = name
     user = False
@@ -178,8 +176,6 @@ def callback():
            session.add(newuser)
            session.commit()
            user = session.query(User).filter_by(user_name=name).one()
-
-
 
     return redirect(url_for('dashboard'))
 
@@ -203,68 +199,7 @@ app.config.from_pyfile('config.cfg', silent=True)
 
 oauth_store = {}
 
-# ------------------------  Login via Password ------------------------------------------#
 
-@app.route('/login/', methods = ['POST','GET'])
-def login():
-    state = ''.join(random.choice(string.ascii_uppercase + string.digits)
-                    for x in xrange(32))
-    login_session['state'] = state
-
-
-    if request.method == 'GET':
-        return render_template('login.html', state = state)
-
-    if request.method =='POST':
-        have_error = False
-        username = request.form['username']
-        password = request.form['password']
-        verify = request.form['verify']
-        email = request.form['email']
-
-        params = dict(username = username,
-                      email = email)
-
-        if not valid_username(username):
-            params['error_username'] = "That's not a valid username."
-            have_error = True
-        if not valid_password(password):
-            params['error_password'] = "That wasn't a valid password."
-            have_error = True
-        elif password != verify:
-            params['error_verify'] = "Your passwords didn't match."
-            have_error = True
-        if not valid_email(email):
-            params['error_email'] = "Please enter a valid email address."
-            have_error = True
-
-        if have_error:
-            return render_template('login.html', **params)
-        else:
-            login_session['username'] = username
-
-        #  add to DB
-            newuser = User(user_name=username,email=email,password=password.encode('rot13'))
-            session.add(newuser)
-            session.commit()
-
-            return redirect(url_for('dashboard'))
-
-#   -------------------  regular expressions for signup ---------------------------------#
-
-USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
-def valid_username(username):
-    user = session.query(User).filter_by(user_name=username).all()
-
-    return username and USER_RE.match(username) and not user
-
-PASS_RE = re.compile(r"^.{5,20}$")
-def valid_password(password):
-    return password and PASS_RE.match(password)
-
-EMAIL_RE  = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
-def valid_email(email):
-    return email and EMAIL_RE.match(email)
 
 
 
