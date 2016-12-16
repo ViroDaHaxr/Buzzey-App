@@ -11,12 +11,12 @@
       Hello, {{ session['username']}}!  </h3>
       {% endif %}
 <p>
-  {% if session['twitter'] %}
-      <h3> You are logged in to twitter account as {{session['twitter']}} </h3>
+  {% if session['username'] %}
+      <h3> You are logged in to twitter account as {{session['username']}} </h3>
 
       <h3>  KPI's for Twitter Account:  </h3>
 
-      Number of followers:  {{followers}}
+      Followers count =  {{followers}}
 
 
 
