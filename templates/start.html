@@ -1,7 +1,9 @@
-{% extends "base.html" %}
+{% extends "basetwitter.html" %}
+
 {% block title %}start{% endblock %}
+
 {% block containercontent %}
-	    <h2>start</h2>
+
     	<p>Just click the button below, you'll be taken to Twitter to login (if you aren't already) and to grant access to <strong>Buzzey</strong>. Afterward you'll be redirected back to us.</p>
     	<p><a href="{{ authorize_url }}?oauth_token={{ oauth_token }}" class="btn btn-small btn-success">Authorize Buzzey</a></p>
         <hr>

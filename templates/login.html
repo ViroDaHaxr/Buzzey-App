@@ -1,8 +1,10 @@
 <!DOCTYPE html>
+{% extends "base.html" %}
+{% block content %}
 
 <html>
   <head>
-    <title>Unit 2 Rot 13</title>
+    <title>Login Form</title>
     <style type="text/css">
       .label {text-align: right}
       .error {color: red}
@@ -12,6 +14,7 @@
 
   <body>
     <h2>Signup</h2>
+
     <form method="post">
       <table>
         <tr>
@@ -66,5 +69,7 @@
       <input type="submit">
     </form>
   </body>
+
+{% endblock %}
 
 </html>

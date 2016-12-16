@@ -1,17 +1,19 @@
-{% block body %}
-  <h2>Buzzey Dashboard Page</h2>
+{% extends "base.html" %}
 
-  {% if session['username'] %}
-      Hello, {{ session['username']}}!
+
+
+{% block content %}
+  <h1>Buzzey Dashboard Page</h1>
+
+  {% if session['username'] %} <h2>
+      Hello, {{ session['username']}}!  </h2>
       {% endif %}
 <p>
   {% if session['twitter'] %}
-      You are logged in to twitter account as {{session['twitter']}}
+      <h3> You are logged in to twitter account as {{session['twitter']}} </h3>
 
   {% else %}
     <p>
-
-      Sign in with twitter.
     <p>
       <a href="{{ url_for('start') }}"><img src="{{
         url_for('static', filename='sign-in.png') }}" alt="sign in"></a>
