@@ -16,17 +16,22 @@
 
       <h3>  KPI's for Twitter Account:  </h3>
 
-      Followers count =  {{followers}}
+      Followers count =  {{followers}}  <br>
+      Friends count =  {{friends}} <br>
+      Status updates = {{statuses}}
 
 
 
 
 
   {% else %}
-    <p>
-    <p>
+    <br>
+    <br>
       <a href="{{ url_for('start') }}"><img src="{{
         url_for('static', filename='sign-in.png') }}" alt="sign in"></a>
   {% endif %}
+  <br><br><br>
+
+  <a href=" {{ url_for('logout')}}" > Log Out </a>
 
 {% endblock %}

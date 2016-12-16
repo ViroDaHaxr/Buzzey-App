@@ -43,7 +43,6 @@ def dashboard():
     if not user:
         return "error: username not found"
     consumer = oauth.Consumer(app.config['APP_CONSUMER_KEY'], app.config['APP_CONSUMER_SECRET'])
-
     rot,rotc = user.oauth_token,user.token_secret
     real_token = oauth.Token(rot,rotc)
     real_client = oauth.Client(consumer, real_token)
@@ -55,9 +54,13 @@ def dashboard():
         return render_template('error.html', error_message=error_message)
     response = json.loads(real_content)
     print('recieved response')
+
+
+    friends_count = response['friends_count']
+    statuses_count = response['statuses_count']
     followers_count = response['followers_count']
 
-    return render_template('dashboard.html',followers=followers_count)
+    return render_template('dashboard.html',followers=followers_count, statuses=statuses_count, friends=friends_count)
 
 
 @app.route('/search')
@@ -71,6 +74,12 @@ def schedule():
 @app.route('/message')
 def message():
     return "<h1>This is the view/submit messages page!</h1>"
+
+@app.route('/logout')
+def logout():
+    login_session.clear()
+    return redirect(url_for('main'))
+
 
 
 
@@ -155,11 +164,7 @@ def callback():
 
     response = json.loads(real_content)
 
-#    print(response)
 
-#    friends_count = response['friends_count']
-#    statuses_count = response['statuses_count']
-#    followers_count = response['followers_count']
     name = response['name']
     login_session['username'] = name
     user = False
