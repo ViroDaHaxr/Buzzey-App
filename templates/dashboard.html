@@ -1,3 +1,6 @@
+<!DOCTYPE html>
+<html lang = "en">
+
 {% extends "basetwitter.html" %}
 
 
@@ -11,7 +14,7 @@ Twitter Dashboard
 
 <p>
   {% if session['username'] %}
-      <h3> You are logged in to twitter as {{session['username']}} </h3>
+      <h3> You are logged in to twitter as {{user.user_name}} </h3>
        Signup date = {{user.created.strftime("%b %d, %Y")}}<br>
        Membership level = {{user.member_level}}
 
@@ -21,8 +24,6 @@ Twitter Dashboard
       Followers count =  {{response['followers_count']}}  <br>
       Friends count =  {{response['friends_count']}} <br>
       Number of posts = {{response['statuses_count']}} <br>
-
-
 
 
 
@@ -38,12 +39,20 @@ Twitter Dashboard
 
     <p><a href="{{ url_for('campaign')}}" class="btn btn-small btn-success">New Marketing Campaign</a></p><br>
 
+{% if session['followers'] %}
+    <p><a href="{{ url_for('followers')}}" class="btn btn-small btn-success" disabled>Build Customers Table</a></p><br>
+{% else %}
     <p><a href="{{ url_for('followers')}}" class="btn btn-small btn-success">Build Customers Table</a></p><br>
+{% endif %}
 
+{% if session['rankings'] %}
+    <p><a href="{{ url_for('rankings')}}" class="btn btn-small btn-success" disabled>Build Customer Rankings Table</a></p><br>
+{% else %}
     <p><a href="{{ url_for('rankings')}}" class="btn btn-small btn-success">Build Customer Rankings Table</a></p><br>
-
+{% endif %}
 
 
   <a href=" {{ url_for('logout')}}" > Log Out </a>
 
 {% endblock %}
+</html>

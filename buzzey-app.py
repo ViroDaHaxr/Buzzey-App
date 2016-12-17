@@ -40,7 +40,7 @@ def dashboard():
         user = session.query(User).filter_by(user_name=login_session['username']).one()
         login_session['user'] = user
     except:
-        return redirect(url_for('/main'))
+        return redirect(url_for('main'))
 
     response = show_user(login_session['twitid'])
 
@@ -53,22 +53,26 @@ def search():
 
 @app.route('/followers')
 def followers():
-
-    response = get_followers(login_session['twitid'])
+    if 'followers' not in login_session:
+        response = get_followers(login_session['twitid'])
 #   add customers to DB
-
+    else:
+    #   read from DB
+        pass
     return redirect(url_for('dashboard'))
 
 @app.route('/rankings')
 def rankings():
-    if 'top' not in login_session:
+    if 'rankings' not in login_session:
         followers = get_followers(login_session['twitid'])
         rankings = get_rankings(followers)
         top_followers = rankings[0:20]
-        login_session['top'] = top_followers
+        login_session['rankings'] = True
     else:
-        top_followers = login_session['top']
-    return render_template('top_followers.html', top = top_followers)
+#   get rankings from DB
+        pass
+
+    return redirect(url_for('dashboard'))
 
 
 @app.route('/schedule')
@@ -84,22 +88,6 @@ def logout():
     login_session.clear()
     return redirect(url_for('main'))
 
-def get_followers(twitter_id):
-  if 'followers' not in login_session:
-    user = login_session['user']
-    real_client = oauth_get(user)
-    cursor = -1
-    response = []
-    while cursor != 0:
-        resp, content = real_client.request(show_followers_url + '?user_id=' + twitter_id + '&cursor=' + str(cursor) + "&count=100", "GET")
-        text = json.loads(content)
-        if text and 'next_cursor' in text:
-            cursor = text['next_cursor']
-            response += text['users']
-    login_session['followers'] = response
-  else:
-    response = login_session['followers']
-  return response
 
 @app.route('/campaigns/')
 def campaign():
@@ -122,10 +110,10 @@ def get_rankings(followers):
        rankings.append([follower_id,name,num])
        time.sleep(0.1)
     rankings.sort(key = lambda x: x[2], reverse = True)
+    login_session['rankings'] = True
     return rankings
 
 def show_user(twitter_id):
-
    # Call api.twitter.com/1.1/users/show.json?user_id={user_id}
     real_client = oauth_get(login_session['user'])
     response, content = real_client.request(show_user_url + '?user_id=' + twitter_id, "GET")
@@ -133,6 +121,20 @@ def show_user(twitter_id):
         error_message = "Invalid response from Twitter API GET users/show : %s" % response['status']
         return render_template('error.html', error_message=error_message)
     return json.loads(content)
+
+def get_followers(twitter_id):
+    user = login_session['user']
+    real_client = oauth_get(user)
+    cursor = -1
+    response = []
+    while cursor != 0:
+        resp, content = real_client.request(show_followers_url + '?user_id=' + twitter_id + '&cursor=' + str(cursor) + "&count=100", "GET")
+        text = json.loads(content)
+        if text and 'next_cursor' in text:
+            cursor = text['next_cursor']
+            response += text['users']
+    login_session['followers'] = True
+    return response
 
 
 #  --------------------  Authorization via Twitter Oauth ------------------------#
