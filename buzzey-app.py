@@ -53,8 +53,8 @@ def search():
 
 @app.route('/followers')
 def followers():
-    response = get_followers(login_session['twitid'])
 
+    response = get_followers(login_session['twitid'])
     return render_template('followers.html', response=response)
 
 @app.route('/rankings')
@@ -85,6 +85,7 @@ def logout():
 
 
 def get_followers(twitter_id):
+  if 'followers' not in login_session:
     user = login_session['user']
     real_client = oauth_get(user)
     cursor = -1
@@ -95,7 +96,10 @@ def get_followers(twitter_id):
         if text and 'next_cursor' in text:
             cursor = text['next_cursor']
             response += text['users']
-    return response
+    login_session['followers'] = response
+  else:
+    response = login_session['followers']
+  return response
 
 
 # get influence rankings (number of followers) for your followers
