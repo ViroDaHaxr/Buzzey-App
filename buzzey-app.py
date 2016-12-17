@@ -69,7 +69,6 @@ def rankings():
     return render_template('top_followers.html', top = top_followers)
 
 
-
 @app.route('/schedule')
 def schedule():
     return "<h1>This is the schedule page!</h1>"
@@ -82,7 +81,6 @@ def message():
 def logout():
     login_session.clear()
     return redirect(url_for('main'))
-
 
 def get_followers(twitter_id):
   if 'followers' not in login_session:
@@ -101,6 +99,15 @@ def get_followers(twitter_id):
     response = login_session['followers']
   return response
 
+@app.route('/campaigns/')
+def campaign():
+    return render_template('campaign.html')
+
+@app.route('/campaigns/new')
+def new_campaign():
+    return render_template('campaign.html')
+
+#-------------------------------------------  Helper Functions ----------------------------#
 
 # get influence rankings (number of followers) for your followers
 def get_rankings(followers):
