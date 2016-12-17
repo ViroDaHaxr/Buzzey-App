@@ -55,7 +55,9 @@ def search():
 def followers():
 
     response = get_followers(login_session['twitid'])
-    return render_template('followers.html', response=response)
+#   add customers to DB
+
+    return redirect(url_for('dashboard'))
 
 @app.route('/rankings')
 def rankings():
