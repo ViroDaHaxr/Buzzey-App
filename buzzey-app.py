@@ -63,7 +63,7 @@ def followers():
     real_client = oauth_get(user)
 
     # cursor set to page 1
-    resp, content = real_client.request(show_followers_url + '?user_id=' + login_session['twitid'] + '&cursor=-1' + '&count=100', "GET")
+    resp, content = real_client.request(show_followers_url + '?user_id=' + login_session['twitid'] + '&cursor=-1' + '&count=50', "GET")
     response = json.loads(content)
     resp = response['users']
 
@@ -206,5 +206,5 @@ def get_rankings(response):
 
 if __name__ == '__main__':
     app.debug = True
-    app.secret_key = 'my_secret_key'
+    app.secret_key = 'development_secret'
     app.run(host='0.0.0.0', port=8000)
