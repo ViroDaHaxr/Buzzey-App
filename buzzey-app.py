@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 
 from flask import session as login_session
 import random, string
-import os, re
+import os, re, time
 import oauth2 as oauth
 import urlparse
 import urllib
@@ -42,13 +42,7 @@ def dashboard():
     except:
         return redirect(url_for('/main'))
 
-    # Call api.twitter.com/1.1/users/show.json?user_id={user_id}
-    real_client = oauth_get(user)
-    response, content = real_client.request(show_user_url + '?user_id=' + login_session['twitid'], "GET")
-    if response['status'] != '200':
-        error_message = "Invalid response from Twitter API GET users/show : %s" % response['status']
-        return render_template('error.html', error_message=error_message)
-    response = json.loads(content)
+    response = show_user(login_session['twitid'])
 
     return render_template('dashboard.html',response = response, user=user)
 
@@ -59,15 +53,17 @@ def search():
 
 @app.route('/followers')
 def followers():
-    user = login_session['user']
-    real_client = oauth_get(user)
+    response = get_followers(login_session['twitid'])
 
-    # cursor set to page 1
-    resp, content = real_client.request(show_followers_url + '?user_id=' + login_session['twitid'] + '&cursor=-1' + '&count=50', "GET")
-    response = json.loads(content)
-    resp = response['users']
+    return render_template('followers.html', response=response)
 
-    return render_template('followers.html', response=resp)
+@app.route('/rankings')
+def rankings():
+
+    followers = get_followers(login_session['twitid'])
+    rankings = get_rankings(followers)
+    print(rankings)
+    return redirect(url_for('dashboard'))
 
 
 
@@ -85,8 +81,37 @@ def logout():
     return redirect(url_for('main'))
 
 
+def get_followers(twitter_id):
+    user = login_session['user']
+    real_client = oauth_get(user)
+    # cursor set to page 1
+    resp, content = real_client.request(show_followers_url + '?user_id=' + twitter_id + '&cursor=-1' + '&count=50', "GET")
+    response = json.loads(content)
+    return response['users']
 
 
+# get influence rankings (number of followers) for your followers
+def get_rankings(followers):
+    rankings = []
+    for follower in followers:
+       follower_id = follower['id_str']
+       name = follower['name']
+       resp = show_user(follower_id)
+       num = resp['followers_count']
+       rankings.append([follower_id,name,num])
+       time.sleep(0.05)
+    rankings.sort(key = lambda x: x[2], reverse = True)
+    return rankings
+
+def show_user(twitter_id):
+
+   # Call api.twitter.com/1.1/users/show.json?user_id={user_id}
+    real_client = oauth_get(login_session['user'])
+    response, content = real_client.request(show_user_url + '?user_id=' + twitter_id, "GET")
+    if response['status'] != '200':
+        error_message = "Invalid response from Twitter API GET users/show : %s" % response['status']
+        return render_template('error.html', error_message=error_message)
+    return json.loads(content)
 
 
 #  --------------------  Authorization via Twitter Oauth ------------------------#
@@ -171,6 +196,8 @@ def callback():
 def internal_server_error(e):
     return render_template('error.html', error_message='uncaught exception'), 500
 
+
+
 # ------------------------------ Twitter Oauth Parameters -------------------------------#
 request_token_url = 'https://twitter.com/oauth/request_token'
 access_token_url = 'https://twitter.com/oauth/access_token'
@@ -195,13 +222,7 @@ def oauth_get(user):
     return(oauth.Client(consumer, real_token))
 
 
-# get influence rankings (number of followers) for your followers
-def get_rankings(response):
-    ranking = []
-    followers = response['users']
-    for f in followers:
-       follower_id = f['id_str']
-    return False
+
 
 
 if __name__ == '__main__':
