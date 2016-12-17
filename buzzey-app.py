@@ -24,7 +24,6 @@ session = DBSession()
 # -----------------  Twitter Dashboard for Digital Marketing ----------------------------#
 
 
-
 @app.route('/')
 @app.route('/main')
 def main():
@@ -37,28 +36,23 @@ def main():
 def dashboard():
     if 'username' not in login_session:
         return redirect(url_for('main'))
-
-    # Call api.twitter.com/1.1/users/show.json?user_id={user_id}
     try:
         user = session.query(User).filter_by(user_name=login_session['username']).one()
+        login_session['user'] = user
     except:
         return redirect(url_for('/main'))
-    consumer = oauth.Consumer(app.config['APP_CONSUMER_KEY'], app.config['APP_CONSUMER_SECRET'])
-    rot,rotc = user.oauth_token,user.token_secret
-    real_token = oauth.Token(rot,rotc)
-    real_client = oauth.Client(consumer, real_token)
 
-    real_resp, real_content = real_client.request(show_user_url + '?user_id=' + login_session['twitid'], "GET")
-    if real_resp['status'] != '200':
-        error_message = "Invalid response from Twitter API GET users/show : %s" % real_resp['status']
+    # Call api.twitter.com/1.1/users/show.json?user_id={user_id}
+    real_client = oauth_get(user)
+    response, content = real_client.request(show_user_url + '?user_id=' + login_session['twitid'], "GET")
+    if response['status'] != '200':
+        error_message = "Invalid response from Twitter API GET users/show : %s" % response['status']
         return render_template('error.html', error_message=error_message)
-    response = json.loads(real_content)
-    print('recieved response')
+    response = json.loads(content)
 
     friends_count = response['friends_count']
     statuses_count = response['statuses_count']
     followers_count = response['followers_count']
-
 
     return render_template('dashboard.html',followers=followers_count, statuses=statuses_count,
                             friends=friends_count, user=user)
@@ -67,6 +61,20 @@ def dashboard():
 @app.route('/search')
 def search():
     return "<h1>This is the search page!<h1>"
+
+@app.route('/followers')
+def followers():
+    user = login_session['user']
+    real_client = oauth_get(user)
+
+    # cursor set to page 1
+    resp, content = real_client.request(show_followers_url + '?user_id=' + login_session['twitid'] + '&cursor=-1' + '&count=100', "GET")
+    response = json.loads(content)
+    resp = response['users']
+
+    return render_template('followers.html', response=resp)
+
+
 
 @app.route('/schedule')
 def schedule():
@@ -140,42 +148,29 @@ def callback():
     resp, content = client.request(access_token_url, "POST")
     access_token = dict(urlparse.parse_qsl(content))
 
-    screen_name = access_token['screen_name']
+    name = access_token['screen_name']
     user_id = access_token['user_id']
 
     login_session['twitid'] = user_id
+    login_session['username'] = name
 
     # These are the tokens you would store long term, someplace safe
 
     real_oauth_token = access_token['oauth_token']
     real_oauth_token_secret = access_token['oauth_token_secret']
 
-    print('oauth_token =',real_oauth_token)
-    print('oauth_secret =',real_oauth_token_secret)
+    user_in_db = False
 
-    # Call api.twitter.com/1.1/users/show.json?user_id={user_id}
-
-    real_token = oauth.Token(real_oauth_token, real_oauth_token_secret)
-    real_client = oauth.Client(consumer, real_token)
-    real_resp, real_content = real_client.request(show_user_url + '?user_id=' + user_id, "GET")
-
-    if real_resp['status'] != '200':
-        error_message = "Invalid response from Twitter API GET users/show : %s" % real_resp['status']
-        return render_template('error.html', error_message=error_message)
-
-    response = json.loads(real_content)
-    name = response['name']
-    login_session['username'] = name
-    user = False
     try:
-        user = session.query(User).filter_by(user_name=name).all()
+        user_in_db = session.query(User).filter_by(user_name=name).one()
     except:
         print('no user found')
-    if not user:
+    if not user_in_db:
            newuser = User(user_name=name,oauth_token=real_oauth_token,token_secret=real_oauth_token_secret)
            session.add(newuser)
            session.commit()
-           user = session.query(User).filter_by(user_name=name).one()
+
+
 
     return redirect(url_for('dashboard'))
 
@@ -188,6 +183,7 @@ request_token_url = 'https://twitter.com/oauth/request_token'
 access_token_url = 'https://twitter.com/oauth/access_token'
 authorize_url = 'https://twitter.com/oauth/authorize'
 show_user_url = 'https://api.twitter.com/1.1/users/show.json'
+show_followers_url = "https://api.twitter.com/1.1/followers/list.json"
 
 # Support keys from environment vars (heroku). You should add your keys to config.cfg
 
@@ -199,8 +195,20 @@ app.config.from_pyfile('config.cfg', silent=True)
 
 oauth_store = {}
 
+def oauth_get(user):
+    consumer = oauth.Consumer(app.config['APP_CONSUMER_KEY'], app.config['APP_CONSUMER_SECRET'])
+    rot,rotc = user.oauth_token,user.token_secret
+    real_token = oauth.Token(rot,rotc)
+    return(oauth.Client(consumer, real_token))
 
 
+# get influence rankings (number of followers) for your followers
+def get_rankings(response):
+    ranking = []
+    followers = response['users']
+    for f in followers:
+       follower_id = f['id_str']
+    return False
 
 
 if __name__ == '__main__':
