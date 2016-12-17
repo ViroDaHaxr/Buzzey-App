@@ -59,11 +59,14 @@ def followers():
 
 @app.route('/rankings')
 def rankings():
-
-    followers = get_followers(login_session['twitid'])
-    rankings = get_rankings(followers)
-    print(rankings)
-    return redirect(url_for('dashboard'))
+    if 'top' not in login_session:
+        followers = get_followers(login_session['twitid'])
+        rankings = get_rankings(followers)
+        top_followers = rankings[0:20]
+        login_session['top'] = top_followers
+    else:
+        top_followers = login_session['top']
+    return render_template('top_followers.html', top = top_followers)
 
 
 
@@ -84,10 +87,15 @@ def logout():
 def get_followers(twitter_id):
     user = login_session['user']
     real_client = oauth_get(user)
-    # cursor set to page 1
-    resp, content = real_client.request(show_followers_url + '?user_id=' + twitter_id + '&cursor=-1' + '&count=50', "GET")
-    response = json.loads(content)
-    return response['users']
+    cursor = -1
+    response = []
+    while cursor != 0:
+        resp, content = real_client.request(show_followers_url + '?user_id=' + twitter_id + '&cursor=' + str(cursor) + "&count=100", "GET")
+        text = json.loads(content)
+        if text and 'next_cursor' in text:
+            cursor = text['next_cursor']
+            response += text['users']
+    return response
 
 
 # get influence rankings (number of followers) for your followers
@@ -95,11 +103,11 @@ def get_rankings(followers):
     rankings = []
     for follower in followers:
        follower_id = follower['id_str']
-       name = follower['name']
+       name = follower['screen_name']
        resp = show_user(follower_id)
        num = resp['followers_count']
        rankings.append([follower_id,name,num])
-       time.sleep(0.05)
+       time.sleep(0.1)
     rankings.sort(key = lambda x: x[2], reverse = True)
     return rankings
 
