@@ -50,12 +50,7 @@ def dashboard():
         return render_template('error.html', error_message=error_message)
     response = json.loads(content)
 
-    friends_count = response['friends_count']
-    statuses_count = response['statuses_count']
-    followers_count = response['followers_count']
-
-    return render_template('dashboard.html',followers=followers_count, statuses=statuses_count,
-                            friends=friends_count, user=user)
+    return render_template('dashboard.html',response = response, user=user)
 
 
 @app.route('/search')
@@ -169,8 +164,6 @@ def callback():
            newuser = User(user_name=name,oauth_token=real_oauth_token,token_secret=real_oauth_token_secret)
            session.add(newuser)
            session.commit()
-
-
 
     return redirect(url_for('dashboard'))
 
