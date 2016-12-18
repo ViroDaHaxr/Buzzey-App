@@ -18,13 +18,13 @@ Twitter Dashboard
 <div class="container">
 <p>
   {% if session['username'] %}
-   <img src="{{response['profile_image_url']}}" alt ="image" >   <h3> You are logged in to twitter as {{user.user_name}}<br>
+   <img src="{{response['profile_image_url']}}" alt ="image" >   <h3> You are logged in: {{user.user_name}}<br>
       </h3>
        Signup date = {{user.created.strftime("%b %d, %Y")}}<br>
        Membership level = {{user.member_level}}
 
 
-      <h3>  KPI's for Twitter Account:  </h3>
+      <h3>  Social Media KPI's:  </h3>
 
       Followers count =  {{response['followers_count']}}  <br>
       Friends count =  {{response['friends_count']}} <br>
@@ -53,7 +53,7 @@ Twitter Dashboard
 {% if session['rankings'] %}
     <p><a href="{{ url_for('viewrankings')}}" class="btn btn-small btn-success" >View Influence Rankings</a></p><br>
 {% else %}
-    <p><a href="{{ url_for('rankings')}}" class="btn btn-small btn-info">Build Customer Rankings Table</a></p><br>
+    <p><a href="{{ url_for('rankings')}}" class="btn btn-small btn-info">Build Rankings Table</a></p><br>
 {% endif %}
 
 
