@@ -260,5 +260,5 @@ def oauth_get(user):
 
 if __name__ == '__main__':
     app.debug = True
-    app.secret_key = 'development_secret'
+    app.secret_key = 'dev_secret'
     app.run(host='0.0.0.0', port=8000)
