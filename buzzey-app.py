@@ -44,6 +44,7 @@ def dashboard():
 
     response = show_user(login_session['twitid'])
 
+
     return render_template('dashboard.html',response = response, user=user)
 
 
@@ -71,7 +72,6 @@ def rankings():
     else:
 #   get rankings from DB
         pass
-
     return redirect(url_for('dashboard'))
 
 
@@ -95,7 +95,15 @@ def campaign():
 
 @app.route('/campaigns/new')
 def new_campaign():
-    return render_template('campaign.html')
+    return 'New Campaign!'
+
+@app.route('/viewrankings')
+def viewrankings():
+    return 'Rankings Table'
+
+@app.route('/viewcustomers')
+def customers():
+    return 'Customers Table'
 
 #-------------------------------------------  Helper Functions ----------------------------#
 
@@ -120,7 +128,9 @@ def show_user(twitter_id):
     if response['status'] != '200':
         error_message = "Invalid response from Twitter API GET users/show : %s" % response['status']
         return render_template('error.html', error_message=error_message)
-    return json.loads(content)
+    response = json.loads(content)
+    login_session['img_url'] = response['profile_image_url']
+    return response
 
 def get_followers(twitter_id):
     user = login_session['user']
