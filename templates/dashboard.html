@@ -24,22 +24,19 @@ Twitter Dashboard
        Membership level = {{user.member_level}}
 
 
-      <h3>  Social Media KPI's:  </h3>
+      <h3>  Twitter Account KPI's:  </h3>
 
       Followers count =  {{response['followers_count']}}  <br>
       Friends count =  {{response['friends_count']}} <br>
       Number of posts = {{response['statuses_count']}} <br>
 
 
-</div>
-
   {% else %}
-    <br>
     <br>
       <a href="{{ url_for('start') }}"><img src="{{
         url_for('static', filename='sign-in.png') }}" alt="sign in"></a>
   {% endif %}
-  <br><br><br>
+  <br><br>
 
 
     <p><a href="{{ url_for('campaign')}}" class="btn btn-small btn-success">New Marketing Campaign</a></p><br>
@@ -58,6 +55,6 @@ Twitter Dashboard
 
 
     <p><a href="{{ url_for('logout')}}" class="btn btn-small btn-warning">Log Out</a></p><br>
-
+</div>
 {% endblock %}
 </html>
