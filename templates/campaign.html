@@ -1,3 +1,9 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
 {% extends "basetwitter.html" %}
 
 
@@ -8,7 +14,9 @@ Marketing Campaigns
 
 {% block containercontent %}
 
-<p>
+<div class = "container">
+
+
   {% if session['username'] %}
      <img src="{{session['img_url']}}" alt ="" >
 
@@ -34,7 +42,7 @@ Marketing Campaigns
 
     <p><a href="{{ url_for('dashboard')}}" class="btn btn-small btn-warning">Return to Dashboard</a></p><br>
 
-
+</div>
 
 
 {% endblock %}
