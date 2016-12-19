@@ -47,14 +47,18 @@ Twitter Dashboard
     <p><a href="{{ url_for('followers')}}" class="btn btn-small btn-info">Build Customers Table</a></p><br>
 {% endif %}
 
-{% if session['rankings'] %}
-    <p><a href="{{ url_for('viewrankings')}}" class="btn btn-small btn-success" >View Influence Rankings</a></p><br>
-{% elif session['followers'] %}
-    <p><a href="{{ url_for('rankings')}}" class="btn btn-small btn-info">Build Rankings Table</a></p><br>
-{% endif %}
 
 
     <p><a href="{{ url_for('logout')}}" class="btn btn-small btn-warning">Log Out</a></p><br>
 </div>
 {% endblock %}
 </html>
+
+<!
+{% if session['rankings'] %}
+    <p><a href="{{ url_for('viewrankings')}}" class="btn btn-small btn-success" >View Influence Rankings</a></p><br>
+{% elif session['followers'] %}
+    <p><a href="{{ url_for('rankings')}}" class="btn btn-small btn-info">Build Rankings Table</a></p><br>
+{% endif %}
+
+>

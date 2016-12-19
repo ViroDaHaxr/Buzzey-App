@@ -230,7 +230,6 @@ def internal_server_error(e):
     return render_template('error.html', error_message='uncaught exception'), 500
 
 
-
 # ------------------------------ Twitter Oauth Parameters -------------------------------#
 request_token_url = 'https://twitter.com/oauth/request_token'
 access_token_url = 'https://twitter.com/oauth/access_token'
