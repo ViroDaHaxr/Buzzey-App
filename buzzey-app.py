@@ -93,9 +93,12 @@ def logout():
 def campaign():
     return render_template('campaign.html')
 
-@app.route('/campaigns/new')
-def new_campaign():
-    return 'New Campaign!'
+@app.route('/newcampaign', methods = ['POST','GET'])
+def newcampaign():
+    if request.method == 'GET':
+       return render_template('newcampaign.html')
+    if request.method == 'POST':
+       return render_template('campaignsettings.html')
 
 @app.route('/viewrankings')
 def viewrankings():
