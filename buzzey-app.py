@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, User, Search, Messages, Customers
+from database_setup import Base, User, Twitter, Campaign, Customer
 
 engine = create_engine('sqlite:///buzzey.db')   # connect to db
 Base.metadata.bind = engine
@@ -38,14 +38,20 @@ def dashboard():
         return redirect(url_for('main'))
     try:
         user = session.query(User).filter_by(user_name=login_session['username']).one()
-        login_session['user'] = user
+        signup_date = user.created.strftime("%b %d, %Y")
+        level = user.member_level
     except:
-        return redirect(url_for('main'))
-
-    response = show_user(login_session['twitid'])
-
-
-    return render_template('dashboard.html',response = response, user=user)
+        print('db error')
+        return render_template('publicindex.html')
+    twitr = session.query(Twitter).filter_by(user_id=user.id).one()
+    if twitr:
+        image_url = twitr.image_url
+        followers = twitr.followers
+        friends = twitr.following
+        updates = twitr.tweet_count
+        return render_template('dashboard.html', date=signup_date, level=level, image_url=image_url, followers=followers, friends=friends, updates=updates)
+    else:
+        return "error- twiter account not found!"
 
 
 @app.route('/search')
@@ -103,6 +109,8 @@ def updatesettings():
 
 @app.route('/keywords/', methods = ['POST', 'GET'])
 def keywords():
+    if 'username' not in login_session:
+        return redirect(url_for('main'))
     if request.method == 'GET':
         return render_template('keywords.html')
     if request.method == 'POST':
@@ -115,14 +123,19 @@ def keywords():
 
 @app.route('/newcampaign', methods = ['POST','GET'])
 def newcampaign():
+
     if request.method == 'GET':
        return render_template('newcampaign.html')
     if request.method == 'POST':
+
+       name = request.form['name']
+       description = request.form['description']
        if not valid_form(request.form['name']):
            flash("Campaign name required!")
            return redirect(url_for('newcampaign'))
-#save name and description to DB
-
+       newcampaign = Campaign(campaign_name=name,description = description)
+       session.add(newcampaign)
+       session.commit()
        return redirect(url_for('keywords'))
 
 
@@ -160,7 +173,12 @@ def get_rankings(followers):
 
 def show_user(twitter_id):
    # Call api.twitter.com/1.1/users/show.json?user_id={user_id}
-    real_client = oauth_get(login_session['user'])
+    try:
+        user = session.query(User).filter_by(user_name=login_session['username']).one()
+    except:
+        print 'user not found in show_user!'
+        return redirect(url_for('main'))
+    real_client = oauth_get(user)
     response, content = real_client.request(show_user_url + '?user_id=' + twitter_id, "GET")
     if response['status'] != '200':
         error_message = "Invalid response from Twitter API GET users/show : %s" % response['status']
@@ -170,7 +188,11 @@ def show_user(twitter_id):
     return response
 
 def get_followers(twitter_id):
-    user = login_session['user']
+    try:
+        user = session.query(User).filter_by(user_name=login_session['username']).one()
+    except:
+        print 'user not found in show_user!'
+        return redirect(url_for('main'))
     real_client = oauth_get(user)
     cursor = -1
     response = []
@@ -183,6 +205,11 @@ def get_followers(twitter_id):
     login_session['followers'] = True
     return response
 
+def oauth_get(user):
+    consumer = oauth.Consumer(app.config['APP_CONSUMER_KEY'], app.config['APP_CONSUMER_SECRET'])
+    rot,rotc = user.oauth_token,user.token_secret
+    real_token = oauth.Token(rot,rotc)
+    return(oauth.Client(consumer, real_token))
 
 #  --------------------  Authorization via Twitter Oauth ------------------------#
 
@@ -241,7 +268,6 @@ def callback():
     name = access_token['screen_name']
     user_id = access_token['user_id']
 
-    login_session['twitid'] = user_id
     login_session['username'] = name
 
     # These are the tokens you would store long term, someplace safe
@@ -249,16 +275,44 @@ def callback():
     real_oauth_token = access_token['oauth_token']
     real_oauth_token_secret = access_token['oauth_token_secret']
 
-    user_in_db = False
+    userindb = False
 
     try:
-        user_in_db = session.query(User).filter_by(user_name=name).one()
+        userindb = session.query(User).filter_by(user_name=name).one()
     except:
         print('no user found')
-    if not user_in_db:
+    if not userindb:
            newuser = User(user_name=name,oauth_token=real_oauth_token,token_secret=real_oauth_token_secret)
            session.add(newuser)
            session.commit()
+           userindb = newuser
+
+           twituser = Twitter(user_id=newuser.id,twitterid=user_id)
+           session.add(twituser)
+           session.commit()
+
+    try:
+        response = show_user(user_id)
+
+    except:
+        print('twitter account not found')
+
+    if response:
+           tu = session.query(Twitter).filter_by(user_id=userindb.id).one()
+           tu.image_url = response['profile_image_url']
+           tu.screenname = response['screen_name']
+           tu.followers = response['followers_count']
+           tu.tweet_count = response['statuses_count']
+           tu.web_url = response['url']
+           tu.location = response['location']
+           tu.bio = response['description']
+           tu.following = response['friends_count']
+#           print(image_url,name,followers,tweet_count,web_url,location,bio,following)
+           session.add(tu)
+           session.commit()
+
+    login_session['twitid'] = user_id
+
 
     return redirect(url_for('dashboard'))
 
@@ -284,11 +338,7 @@ app.config.from_pyfile('config.cfg', silent=True)
 
 oauth_store = {}
 
-def oauth_get(user):
-    consumer = oauth.Consumer(app.config['APP_CONSUMER_KEY'], app.config['APP_CONSUMER_SECRET'])
-    rot,rotc = user.oauth_token,user.token_secret
-    real_token = oauth.Token(rot,rotc)
-    return(oauth.Client(consumer, real_token))
+
 
 
 

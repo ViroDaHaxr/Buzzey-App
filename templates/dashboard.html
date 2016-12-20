@@ -18,17 +18,16 @@ Twitter Dashboard
 <div class="container">
 <p>
   {% if session['username'] %}
-   <img src="{{response['profile_image_url']}}" alt ="image" >   <h3> You are logged in: {{user.user_name}}<br>
+   <img src="{{image_url}}" alt ="image" >   <h3> You are logged in: {{session['username']}}<br>
       </h3>
-       Signup date = {{user.created.strftime("%b %d, %Y")}}<br>
-       Membership level = {{user.member_level}}
-
+       Signup date = {{date}}<br>
+       Membership level = {{level}}
 
       <h3>  Twitter Account KPI's:  </h3>
 
-      Followers count =  {{response['followers_count']}}  <br>
-      Friends count =  {{response['friends_count']}} <br>
-      Number of posts = {{response['statuses_count']}} <br>
+      Followers count =  {{followers}}  <br>
+      Friends count =  {{friends}} <br>
+      Number of posts = {{updates}} <br>
 
 
   {% else %}
