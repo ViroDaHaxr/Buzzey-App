@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
 
 from flask import session as login_session
 import random, string
@@ -93,12 +93,39 @@ def logout():
 def campaign():
     return render_template('campaign.html')
 
+@app.route('/settings/')
+def settings():
+    return render_template('settings.html')
+
+@app.route('/updatesettings/')
+def updatesettings():
+    return "Settings Updated!"
+
+@app.route('/keywords/', methods = ['POST', 'GET'])
+def keywords():
+    if request.method == 'GET':
+        return render_template('keywords.html')
+    if request.method == 'POST':
+        if not valid_form(request.form['term1']):
+            flash("At least one keyword term required!")
+            return redirect(url_for('keywords'))
+        else:
+# save keywords to DB
+            return redirect(url_for('settings'))
+
 @app.route('/newcampaign', methods = ['POST','GET'])
 def newcampaign():
     if request.method == 'GET':
        return render_template('newcampaign.html')
     if request.method == 'POST':
-       return render_template('campaignsettings.html')
+       if not valid_form(request.form['name']):
+           flash("Campaign name required!")
+           return redirect(url_for('newcampaign'))
+#save name and description to DB
+
+       return redirect(url_for('keywords'))
+
+
 
 @app.route('/viewrankings')
 def viewrankings():
@@ -109,6 +136,13 @@ def customers():
     return 'Customers Table'
 
 #-------------------------------------------  Helper Functions ----------------------------#
+
+def valid_form(name):
+    if name and len(name) > 2 and not name.isdigit():
+        return name
+    else:
+        return False
+
 
 # get influence rankings (number of followers) for your followers
 def get_rankings(followers):

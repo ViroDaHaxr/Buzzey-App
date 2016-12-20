@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+{% extends "basetwitter.html" %}
+
+{% block title %}
+New Marketing Campaign
+{% endblock %}
+
+{% block containercontent %}
+
+<div class = "container">
+
+  {% if session['username'] %}
+     <img src="{{session['img_url']}}" alt ="" >
+
+			<h2>Marketing Campaign Settings:</h2>
+<form action = "{{url_for('updatesettings')}}" method = "GET"}}
+<br>
+
+<div class="checkbox">
+  <label>
+    <input type="checkbox" name="autofollow" value="T">
+    AutoFollow &mdash; automatically follow select customers on twitter
+
+  </label>
+</div>
+
+<input class="form-control" id="wm" name="welcomemessage" type="text" placeholder="Welcome message ..." >
+
+
+<div class="checkbox">
+  <label>
+    <input type="checkbox" name="autolike" value="T">
+    AutoLike &mdash; automatically 'like' select customer tweets
+  </label>
+</div>
+
+<div class="checkbox">
+  <label>
+    <input type="checkbox" name="specialoffer" value="T">
+    Special Offer &mdash; enable sending special offers to select customers
+  </label>
+</div>
+
+<input class="form-control" id="so" name="specialoffer" type="text" placeholder="Special offer URL" >
+
+
+<div class="radio">
+  <label>
+    <input type="radio" name="offeroption" id="optionsRadios1" value="1" checked>
+    Local offer &mdash; limited to geographic area
+  </label>
+</div>
+<div class="radio">
+  <label>
+    <input type="radio" name="offeroption" id="optionsRadios2" value="2">
+    General offer &mdash; not limited to geographic area
+  </label>
+</div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+
+
+  {% else %}
+    <br>
+    <br>
+      <a href="{{ url_for('start') }}"><img src="{{
+        url_for('static', filename='sign-in.png') }}" alt="sign in"></a>
+  {% endif %}
+  <br><br><br>
+
+
+
+    <p><a href="{{ url_for('dashboard')}}" class="btn btn-small btn-warning">Return to Dashboard</a></p><br>
+
+</div>
+
+
+{% endblock %}

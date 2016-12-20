@@ -96,4 +96,9 @@ input[type=submit] {
 .post-content {
     margin-top: 5px;
 }
+.flash {
+	background-color: #98FB98;
+	width:100%;
+	text-decoration: none;
 
+}
