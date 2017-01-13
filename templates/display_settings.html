@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+{% extends "basetwitter.html" %}
+
+
+
+{% block title %}
+Marketing Campaigns
+{% endblock %}
+
+{% block containercontent %}
+
+<div class = "container">
+
+
+  {% if session['username'] %}
+     <img src="{{session['img_url']}}" alt ="" >
+
+
+
+      <h3>  Current campaign settings:  </h3>
+<h4>
+  <b>Name: </b>     "{{campaign.campaign_name}}" <br><br>
+  <b>Description:</b>  "{{campaign.description}}" <br><br>
+
+  <b>Search Terms:</b><br>
+
+  {% for term in terms %}
+
+  "{{term}}" <br>
+
+  {%endfor%}<br>
+  <b>Autofollow: </b>  {{campaign.autofollow}} <br>
+  <b>Autolike: </b>  {{campaign.autolike}} <br>
+  <b>Autocontent: </b>  {{campaign.autocontent}} <br>
+  <b>Reply message: </b>  "{{campaign.reply_message}}" <br>
+  <b>Offer message: </b>  {{campaign.offer_message}} <br>
+  <b>Offer URL: </b>  "{{campaign.offer_url}}" <br>
+  <b>Local offer: </b>  {{campaign.local_offer}} <br><br>
+</h4>
+
+    <p><a href="{{ url_for('settings', campaign_id = campaign.id)}}" class="btn btn-small btn-success">Edit Settings</a></p><br>
+
+    <p><a href="{{ url_for('keywords', campaign_id = campaign.id)}}" class="btn btn-small btn-success">Edit Keywords</a></p><br>
+
+    <p><a href="{{ url_for('dashboard')}}" class="btn btn-small btn-warning">Return to Dashboard</a></p><br>
+
+  {% else %}
+    <br>
+    <br>
+      <a href="{{ url_for('start') }}"><img src="{{
+        url_for('static', filename='sign-in.png') }}" alt="sign in"></a>
+  {% endif %}
+  <br><br><br>
+
+
+</div>
+
+
+{% endblock %}

@@ -20,11 +20,29 @@ Marketing Campaigns
   {% if session['username'] %}
      <img src="{{session['img_url']}}" alt ="" >
 
+      <h3>  All User Campaigns:</h3>
 
+<form action = "{{url_for('setcampaign')}}" method = "GET"}}>
 
-      <h3>  Campaign Settings:  </h3>
+{% for camp in camps %}
 
+<div class="radio">
+  <label>
+    <input type="radio" name="campname" id="optionsRadios1" value="{{camp.campaign_name}}" checked>
+    {{camp.campaign_name}}
+  </label>
+</div>
 
+   {% endfor %}
+<br>
+    <button type="submit" class="btn btn-primary">Select</button>
+</form>
+
+<br><br>
+
+    <p><a href="{{ url_for('newcampaign')}}" class="btn btn-small btn-success">Add New Campaign</a></p><br>
+
+    <p><a href="{{ url_for('dashboard')}}" class="btn btn-small btn-warning">Return to Dashboard</a></p><br>
 
 
 
@@ -37,10 +55,6 @@ Marketing Campaigns
   {% endif %}
   <br><br><br>
 
-
-    <p><a href="{{ url_for('new_campaign')}}" class="btn btn-small btn-success">Add New Campaign</a></p><br>
-
-    <p><a href="{{ url_for('dashboard')}}" class="btn btn-small btn-warning">Return to Dashboard</a></p><br>
 
 </div>
 

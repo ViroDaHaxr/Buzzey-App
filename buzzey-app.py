@@ -40,16 +40,18 @@ def dashboard():
         user = session.query(User).filter_by(user_name=login_session['username']).one()
         signup_date = user.created.strftime("%b %d, %Y")
         level = user.member_level
+        login_session['user_id'] = user.id
     except:
         print('db error')
         return render_template('publicindex.html')
     twitr = session.query(Twitter).filter_by(user_id=user.id).one()
+    camps = session.query(Campaign).filter_by(user_id=user.id).all()
     if twitr:
         image_url = twitr.image_url
         followers = twitr.followers
         friends = twitr.following
         updates = twitr.tweet_count
-        return render_template('dashboard.html', date=signup_date, level=level, image_url=image_url, followers=followers, friends=friends, updates=updates)
+        return render_template('dashboard.html', date=signup_date, level=level, image_url=image_url, followers=followers, friends=friends, updates=updates, camps=camps)
     else:
         return "error- twiter account not found!"
 
@@ -95,49 +97,113 @@ def logout():
     return redirect(url_for('main'))
 
 
-@app.route('/campaigns/')
-def campaign():
-    return render_template('campaign.html')
-
-@app.route('/settings/')
-def settings():
-    return render_template('settings.html')
-
-@app.route('/updatesettings/')
-def updatesettings():
-    return "Settings Updated!"
-
-@app.route('/keywords/', methods = ['POST', 'GET'])
-def keywords():
+@app.route('/setcampaign/')
+def setcampaign():
     if 'username' not in login_session:
         return redirect(url_for('main'))
+    camp_name = request.args.get('campname')
+    print camp_name
+    if camp_name:
+        try:
+           camp = session.query(Campaign).filter_by(user_id = login_session['user_id'], campaign_name = camp_name).one()
+        except:
+           return "Campaign Not Found!"
+    if camp:
+        login_session['camp_id'] = camp.id
+    return redirect(url_for('dashboard'))
+
+@app.route('/campaigns/')
+def campaigns():
+    if 'username' not in login_session:
+        return redirect(url_for('main'))
+    camps = session.query(Campaign).filter_by(user_id = login_session['user_id']).all()
+    return render_template('campaign.html', camps = camps)
+
+
+@app.route('/settings/<int:campaign_id>/')
+def settings(campaign_id):
+    if 'username' not in login_session:
+        return redirect(url_for('main'))
+    campaign = session.query(Campaign).filter_by(id=campaign_id).one()
+    return render_template('settings.html', campaign_name = campaign.campaign_name, campaign_id=campaign.id)
+
+@app.route('/displaysettings/<int:campaign_id>/')
+def displaysettings(campaign_id):
+    if 'username' not in login_session:
+        return redirect(url_for('main'))
+    campaign = session.query(Campaign).filter_by(id=campaign_id).one()
+    termobj = campaign.search_terms
+    print termobj, 'termobj'
+    terms = json.loads(termobj) if termobj else ''
+    return render_template('display_settings.html', campaign = campaign, terms=terms)
+
+@app.route('/updatesettings/<int:campaign_id>/')
+def updatesettings(campaign_id):
+
+    campaign = session.query(Campaign).filter_by(id=campaign_id).one()
+    atf = request.args.get('autofollow')
+    wmsg = request.args.get('welcomemessage')
+    atolk = request.args.get('autolike')
+    offr = request.args.get('specialoffer')
+    ofurl = request.args.get('offerurl')
+    ofopt = request.args.get('offeroption')
+    print atf,wmsg,atolk,offr,ofopt
+        #  add settings to Campaign DB
+    campaign.autofollow = atf
+    campaign.reply_message = wmsg
+    campaign.autolike = atolk
+    campaign.offer_url = ofurl
+    campaign.local_offer = ofopt
+    session.add(campaign)
+    session.commit()
+    print "Settings Updated!"
+
+    return redirect(url_for('dashboard'))
+
+@app.route('/keywords/<int:campaign_id>/', methods = ['POST', 'GET'])
+def keywords(campaign_id):
+    if 'username' not in login_session:
+        return redirect(url_for('main'))
+    campaign = session.query(Campaign).filter_by(id=campaign_id).one()
     if request.method == 'GET':
-        return render_template('keywords.html')
+        return render_template('keywords.html', campaign_name = campaign.campaign_name)
     if request.method == 'POST':
         if not valid_form(request.form['term1']):
             flash("At least one keyword term required!")
             return redirect(url_for('keywords'))
-        else:
 # save keywords to DB
-            return redirect(url_for('settings'))
+        response = [request.form['term1'],request.form['term2'],request.form['term3'],request.form['term4'],request.form['term5']]
+        terms = json.dumps([term for term in response if term])
+        campaign.search_terms = terms
+        session.add(campaign)
+        session.commit()
+        return redirect(url_for('settings', campaign_id = campaign.id))
 
 @app.route('/newcampaign', methods = ['POST','GET'])
 def newcampaign():
-
+    user_id = login_session['user_id']
     if request.method == 'GET':
        return render_template('newcampaign.html')
     if request.method == 'POST':
-
        name = request.form['name']
        description = request.form['description']
        if not valid_form(request.form['name']):
            flash("Campaign name required!")
            return redirect(url_for('newcampaign'))
-       newcampaign = Campaign(campaign_name=name,description = description)
+       newcampaign = Campaign(campaign_name=name,description = description, user_id = user_id)
+       try:
+           camp = session.query(Campaign).filter_by(campaign_name=name, user_id = user_id ).one()
+           if camp:
+               flash('Campaign already exists!')
+               return redirect(url_for('newcampaign'))
+       except:
+          pass
        session.add(newcampaign)
        session.commit()
-       return redirect(url_for('keywords'))
-
+       camp = session.query(Campaign).filter_by(campaign_name=name, user_id = user_id).one()
+       camp_id = camp.id
+       login_session['camp_id'] = camp_id
+       return redirect(url_for('keywords', campaign_id = camp_id))
 
 
 @app.route('/viewrankings')
@@ -269,6 +335,7 @@ def callback():
     user_id = access_token['user_id']
 
     login_session['username'] = name
+
 
     # These are the tokens you would store long term, someplace safe
 

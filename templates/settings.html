@@ -14,11 +14,13 @@ New Marketing Campaign
 
 <div class = "container">
 
-  {% if session['username'] %}
+{% if session['username'] %}
      <img src="{{session['img_url']}}" alt ="" >
 
 			<h2>Marketing Campaign Settings:</h2>
-<form action = "{{url_for('updatesettings')}}" method = "GET"}}
+            <h3>Name: {{campaign_name}}</h3>
+
+<form action = "{{url_for('updatesettings', campaign_id = campaign_id)}}" method = "GET"}}
 <br>
 
 <div class="checkbox">
@@ -46,7 +48,7 @@ New Marketing Campaign
   </label>
 </div>
 
-<input class="form-control" id="so" name="specialoffer" type="text" placeholder="Special offer URL" >
+<input class="form-control" id="so" name="offerurl" type="text" placeholder="Special offer URL" >
 
 
 <div class="radio">
@@ -63,10 +65,12 @@ New Marketing Campaign
 </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+<br>
+
+    <p><a href="{{ url_for('dashboard')}}" class="btn btn-small btn-warning">Return to Dashboard</a></p><br>
 
 
-
-  {% else %}
+{% else %}
     <br>
     <br>
       <a href="{{ url_for('start') }}"><img src="{{
@@ -75,8 +79,6 @@ New Marketing Campaign
   <br><br><br>
 
 
-
-    <p><a href="{{ url_for('dashboard')}}" class="btn btn-small btn-warning">Return to Dashboard</a></p><br>
 
 </div>
 
