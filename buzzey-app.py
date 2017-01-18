@@ -170,7 +170,7 @@ def keywords(campaign_id):
     if request.method == 'POST':
         if not valid_form(request.form['term1']):
             flash("At least one keyword term required!")
-            return redirect(url_for('keywords'))
+            return redirect(url_for('keywords', campaign_id=campaign_id))
 # save keywords to DB
         response = [request.form['term1'],request.form['term2'],request.form['term3'],request.form['term4'],request.form['term5']]
         terms = json.dumps([term for term in response if term])
