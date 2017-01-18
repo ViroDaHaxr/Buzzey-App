@@ -27,7 +27,7 @@ Marketing Campaigns
   <b>Name: </b>     "{{campaign.campaign_name}}" <br><br>
   <b>Description:</b>  "{{campaign.description}}" <br><br>
 
-  <b>Search Terms:</b><br>
+  <b>Keyword Terms:</b><br>
 
   {% for term in terms %}
 
@@ -43,11 +43,13 @@ Marketing Campaigns
   <b>Local offer: </b>  {{campaign.local_offer}} <br><br>
 </h4>
 
-    <p><a href="{{ url_for('settings', campaign_id = campaign.id)}}" class="btn btn-small btn-success">Edit Settings</a></p><br>
 
-    <p><a href="{{ url_for('keywords', campaign_id = campaign.id)}}" class="btn btn-small btn-success">Edit Keywords</a></p><br>
 
-    <p><a href="{{ url_for('dashboard')}}" class="btn btn-small btn-warning">Return to Dashboard</a></p><br>
+    <p><a href="{{ url_for('keywords', campaign_id = campaign.id)}}" class="btn btn-small btn-info">Edit Keywords</a></p><br>
+
+    <p><a href="{{ url_for('settings', campaign_id = campaign.id)}}" class="btn btn-small btn-info">Edit Settings</a></p><br>
+
+    <p><a href="{{ url_for('dashboard')}}" class="btn btn-small btn-success">Return to Dashboard</a></p><br>
 
   {% else %}
     <br>

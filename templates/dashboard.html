@@ -18,15 +18,35 @@ Dashboard
 <p>
   {% if session['username'] %}
    <img src="{{image_url}}" alt ="image" >   <h3> You are logged in: {{session['username']}}<br>
-      </h3>
+
+</h3>
+<div class = 'flash'>
+		      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+
+        <ul>
+        {% for message in messages %}
+            <li> <strong> {{ message }} </strong> </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+
+</div>
+
        Signup date = {{date}}<br>
        Membership level = {{level}}
+
+
+
 
       <h3> KPI's:</h3><h4>Twitter Account: </h4>
 
       Followers count =  {{followers}}  <br>
       Friends count =  {{friends}} <br>
       Number of posts = {{updates}} <br>
+
+
 
 
   {% else %}
@@ -38,28 +58,28 @@ Dashboard
 
 
 {% if session['followers'] %}
-    <p><a href="{{ url_for('customers')}}" class="btn btn-small btn-success" >View Customers Table</a></p><br>
+    <p><a href="{{ url_for('customers')}}" class="btn btn-small btn-primary" >View Customers Table</a></p><br>
 {% else %}
-    <p><a href="{{ url_for('followers')}}" class="btn btn-small btn-info">Build Customers Table</a></p><br>
-{% endif %}
-
-{% if session['camp_id'] %}
-    <p><a href="{{ url_for('displaysettings', campaign_id = session['camp_id']) }}" class="btn btn-small btn-success">View Campaign Settings</a></p><br>
+    <p><a href="{{ url_for('followers')}}" class="btn btn-small btn-primary">Build Customers Table</a></p><br>
 {% endif %}
 
 {% if camps %}
-    <p><a href="{{ url_for('campaigns')}}" class="btn btn-small btn-success">View All Campaigns</a></p><br>
+    <p><a href="{{ url_for('campaigns')}}" class="btn btn-small btn-info">View/Add Campaign</a></p><br>
 {% else %}
-
-   <p><a href="{{ url_for('newcampaign')}}" class="btn btn-small btn-success">New Marketing Campaign</a></p><br>
-
-
-
+   <p><a href="{{ url_for('newcampaign')}}" class="btn btn-small btn-primary">New Marketing Campaign</a></p><br>
 {% endif %}
+
+{% if session['camp_id'] %}
+    <p><a href="{{ url_for('displaysettings', campaign_id = session['camp_id']) }}" class="btn btn-small btn-primary">Campaign Settings</a></p><br>
+{% endif %}
+
+
+
 
 
     <p><a href="{{ url_for('logout')}}" class="btn btn-small btn-warning">Log Out</a></p><br>
 </div>
+
 {% endblock %}
 </html>
 

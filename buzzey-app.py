@@ -96,27 +96,50 @@ def logout():
     login_session.clear()
     return redirect(url_for('main'))
 
+@app.route('/delcampaign/')
+def delcampaign():
+    if 'username' not in login_session:
+        return redirect(url_for('main'))
+    camp_name = request.args.get('campname')
+    if camp_name:
+        try:
+           campToDel = session.query(Campaign).filter_by(user_id = login_session['user_id'], campaign_name = camp_name).one()
+           if login_session['camp_id'] == campToDel.id:
+                   login_session['camp_id'] = None
+           session.delete(campToDel)
+           session.commit()
+           flash("Campaign Deleted!")
+        except:
+           flash("Campaign Not Found!")
+    return redirect(url_for('dashboard'))
 
 @app.route('/setcampaign/')
 def setcampaign():
     if 'username' not in login_session:
         return redirect(url_for('main'))
+    action = request.args.get('submitType')
     camp_name = request.args.get('campname')
-    print camp_name
-    if camp_name:
-        try:
-           camp = session.query(Campaign).filter_by(user_id = login_session['user_id'], campaign_name = camp_name).one()
-        except:
-           return "Campaign Not Found!"
-    if camp:
-        login_session['camp_id'] = camp.id
-    return redirect(url_for('dashboard'))
+    try:
+        camp = session.query(Campaign).filter_by(user_id = login_session['user_id'], campaign_name = camp_name).one()
+    except:
+        flash("Campaign Not Found!")
+        return redirect(url_for('dashboard'))
+    if action == 'confirm':
+        return render_template('del_campaign.html', camp = camp)
+    else:
+      login_session['camp_id'] = camp.id
+      flash("Campaign selected!")
+      return redirect(url_for('dashboard'))
+
 
 @app.route('/campaigns/')
-def campaigns():
+def campaigns(remove=False):
     if 'username' not in login_session:
         return redirect(url_for('main'))
+    remove = request.args.get('remove')
     camps = session.query(Campaign).filter_by(user_id = login_session['user_id']).all()
+    if remove:
+        return render_template('del_campaign.html', camps = camps)
     return render_template('campaign.html', camps = camps)
 
 
@@ -177,7 +200,7 @@ def keywords(campaign_id):
         campaign.search_terms = terms
         session.add(campaign)
         session.commit()
-        return redirect(url_for('settings', campaign_id = campaign.id))
+        return redirect(url_for('dashboard'))
 
 @app.route('/newcampaign', methods = ['POST','GET'])
 def newcampaign():

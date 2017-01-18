@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+{% extends "basetwitter.html" %}
+
+
+
+{% block title %}
+Marketing Campaigns
+{% endblock %}
+
+{% block containercontent %}
+
+<div class = "container">
+
+
+{% if session['username'] %}
+     <img src="{{session['img_url']}}" alt ="" >
+
+<h3>  Confirm delete campaign:</h3>
+
+<form action = "{{url_for('delcampaign')}}" method = "GET"}}>
+
+
+<div class="radio">
+  <label>
+    <input type="radio" name="campname" id="optionsRadios1" value="{{camp.campaign_name}}" checked='checked'>
+    {{camp.campaign_name}}
+  </label>
+</div>
+
+<br>
+    <button type="submit" class="btn btn-danger">Delete</button>
+</form>
+
+<br><br>
+
+
+
+    <p><a href="{{ url_for('dashboard')}}" class="btn btn-small btn-success">Return to Dashboard</a></p><br>
+
+
+
+
+  {% else %}
+    <br>
+    <br>
+      <a href="{{ url_for('start') }}"><img src="{{
+        url_for('static', filename='sign-in.png') }}" alt="sign in"></a>
+  {% endif %}
+  <br><br><br>
+
+
+</div>
+
+
+{% endblock %}

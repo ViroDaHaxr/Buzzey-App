@@ -7,7 +7,6 @@
 {% extends "basetwitter.html" %}
 
 
-
 {% block title %}
 Marketing Campaigns
 {% endblock %}
@@ -17,32 +16,38 @@ Marketing Campaigns
 <div class = "container">
 
 
-  {% if session['username'] %}
+{% if session['username'] %}
      <img src="{{session['img_url']}}" alt ="" >
 
-      <h3>  All User Campaigns:</h3>
+<h3>  All User Campaigns:</h3>
 
-<form action = "{{url_for('setcampaign')}}" method = "GET"}}>
+<form action = "{{url_for('setcampaign')}}" method = "GET" name="campform"}}>
 
 {% for camp in camps %}
 
 <div class="radio">
   <label>
-    <input type="radio" name="campname" id="optionsRadios1" value="{{camp.campaign_name}}" checked>
+    <input type="radio" name="campname" id="optionsRadios1" value="{{camp.campaign_name}}"
+    {% if session['camp_id']==camp.id %}
+    checked = "checked"
+    {% endif %} ">
     {{camp.campaign_name}}
   </label>
 </div>
 
    {% endfor %}
+
+<input type="hidden" name="submitType">
+
 <br>
-    <button type="submit" class="btn btn-primary">Select</button>
+    <button type="submit" class="btn btn-success" onclick="setType('Select')">Select Campaign</button><br><br>
+
+    <button type="submit" class="btn btn-danger" onclick="setType('confirm')">Delete Campaign</button>
 </form>
 
 <br><br>
 
-    <p><a href="{{ url_for('newcampaign')}}" class="btn btn-small btn-success">Add New Campaign</a></p><br>
-
-    <p><a href="{{ url_for('dashboard')}}" class="btn btn-small btn-warning">Return to Dashboard</a></p><br>
+    <p><a href="{{ url_for('newcampaign')}}" class="btn btn-small btn-primary">Add New Campaign</a></p><br>
 
 
 
@@ -58,5 +63,15 @@ Marketing Campaigns
 
 </div>
 
+<script>
+   function setType(type)
+   {
+      //formName is the name of your form, submitType is the name of the submit button.
+      document.forms["campform"].elements["submitType"].value = type;
+
+      //Alternately, you can access the button by its Id
+      document.getElementById("submitId").value = type;
+   }
+</script>
 
 {% endblock %}
