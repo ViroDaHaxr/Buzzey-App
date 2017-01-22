@@ -21,8 +21,7 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 
-# -----------------  Twitter Dashboard for Digital Marketing ----------------------------#
-
+# ------------------  Twitter Dashboard for Digital Marketing ----------------------------#
 
 @app.route('/')
 @app.route('/main')
